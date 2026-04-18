@@ -6,6 +6,7 @@ import {
 import { FilterRule } from '../data/filter-rule'
 import {
   FILTER_CUSTOM_FIELDS_QUERY,
+  FILTER_FULLTEXT_QUERY,
   FILTER_HAS_CUSTOM_FIELDS_ALL,
   FILTER_HAS_CUSTOM_FIELDS_ANY,
   FILTER_RULE_TYPES,
@@ -175,7 +176,10 @@ export function queryParamsFromFilterRules(filterRules: FilterRule[]): Params {
           ? params[ruleType.filtervar] + ',' + rule.value
           : rule.value
       } else {
-        params[ruleType.filtervar] = rule.value
+        params[ruleType.filtervar] =
+          rule.rule_type === FILTER_FULLTEXT_QUERY
+            ? rule.value.replace(/,/g, ' ')
+            : rule.value
         if (ruleType.datatype == 'boolean')
           params[ruleType.filtervar] =
             rule.value == 'true' || rule.value == '1' ? 1 : 0

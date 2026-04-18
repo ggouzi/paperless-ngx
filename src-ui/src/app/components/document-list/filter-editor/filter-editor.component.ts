@@ -472,39 +472,31 @@ export class FilterEditorComponent
           this._textFilter = rule.value
           break
         case FILTER_FULLTEXT_QUERY:
-          let allQueryArgs = rule.value.split(',')
-          let textQueryArgs = []
-          allQueryArgs.forEach((arg) => {
-            if (arg.match(RELATIVE_DATE_QUERY_REGEXP_CREATED)) {
-              ;[...arg.matchAll(RELATIVE_DATE_QUERY_REGEXP_CREATED)].forEach(
-                (match) => {
-                  if (match[1]?.length) {
-                    this.dateCreatedRelativeDate =
-                      RELATIVE_DATE_QUERYSTRINGS.find(
-                        (qS) => qS.dateQuery == match[1]
-                      )?.relativeDate ?? null
-                  }
-                }
-              )
-              if (this.dateCreatedRelativeDate === null) textQueryArgs.push(arg) // relative query not in the quick list
-            } else if (arg.match(RELATIVE_DATE_QUERY_REGEXP_ADDED)) {
-              ;[...arg.matchAll(RELATIVE_DATE_QUERY_REGEXP_ADDED)].forEach(
-                (match) => {
-                  if (match[1]?.length) {
-                    this.dateAddedRelativeDate =
-                      RELATIVE_DATE_QUERYSTRINGS.find(
-                        (qS) => qS.dateQuery == match[1]
-                      )?.relativeDate ?? null
-                  }
-                }
-              )
-              if (this.dateAddedRelativeDate === null) textQueryArgs.push(arg) // relative query not in the quick list
-            } else {
-              textQueryArgs.push(arg)
-            }
-          })
-          if (textQueryArgs.length) {
-            this._textFilter = textQueryArgs.join(',')
+          let remaining = rule.value
+          const createdMatch = [
+            ...rule.value.matchAll(RELATIVE_DATE_QUERY_REGEXP_CREATED),
+          ][0]
+          if (createdMatch?.[1]) {
+            this.dateCreatedRelativeDate =
+              RELATIVE_DATE_QUERYSTRINGS.find(
+                (qS) => qS.dateQuery == createdMatch[1]
+              )?.relativeDate ?? null
+            if (this.dateCreatedRelativeDate !== null)
+              remaining = remaining.replace(createdMatch[0], '').trim()
+          }
+          const addedMatch = [
+            ...rule.value.matchAll(RELATIVE_DATE_QUERY_REGEXP_ADDED),
+          ][0]
+          if (addedMatch?.[1]) {
+            this.dateAddedRelativeDate =
+              RELATIVE_DATE_QUERYSTRINGS.find(
+                (qS) => qS.dateQuery == addedMatch[1]
+              )?.relativeDate ?? null
+            if (this.dateAddedRelativeDate !== null)
+              remaining = remaining.replace(addedMatch[0], '').trim()
+          }
+          if (remaining.length) {
+            this._textFilter = remaining
             this.textFilterTarget = TEXT_FILTER_TARGET_FULLTEXT_QUERY
           }
           break
@@ -1035,7 +1027,6 @@ export class FilterEditorComponent
         existingRule.rule_type = FILTER_FULLTEXT_QUERY
       }
 
-      let existingRuleArgs = existingRule?.value.split(',')
       if (this.dateCreatedRelativeDate !== null) {
         const rd = RELATIVE_DATE_QUERYSTRINGS.find(
           (qS) => qS.relativeDate == this.dateCreatedRelativeDate
@@ -1044,9 +1035,10 @@ export class FilterEditorComponent
           `created:${rd.isRange ? `[${rd.dateQuery}]` : `"${rd.dateQuery}"`}`
         )
         if (existingRule) {
-          queryArgs = existingRuleArgs
-            .filter((arg) => !arg.match(RELATIVE_DATE_QUERY_REGEXP_CREATED))
-            .concat(queryArgs)
+          const base = existingRule.value
+            .replace(RELATIVE_DATE_QUERY_REGEXP_CREATED, '')
+            .trim()
+          queryArgs = (base.length ? [base] : []).concat(queryArgs)
         }
       }
       if (this.dateAddedRelativeDate !== null) {
@@ -1057,18 +1049,19 @@ export class FilterEditorComponent
           `added:${rd.isRange ? `[${rd.dateQuery}]` : `"${rd.dateQuery}"`}`
         )
         if (existingRule) {
-          queryArgs = existingRuleArgs
-            .filter((arg) => !arg.match(RELATIVE_DATE_QUERY_REGEXP_ADDED))
-            .concat(queryArgs)
+          const base = existingRule.value
+            .replace(RELATIVE_DATE_QUERY_REGEXP_ADDED, '')
+            .trim()
+          queryArgs = (base.length ? [base] : []).concat(queryArgs)
         }
       }
 
       if (existingRule) {
-        existingRule.value = queryArgs.join(',')
+        existingRule.value = queryArgs.join(' ')
       } else {
         filterRules.push({
           rule_type: FILTER_FULLTEXT_QUERY,
-          value: queryArgs.join(','),
+          value: queryArgs.join(' '),
         })
       }
     }

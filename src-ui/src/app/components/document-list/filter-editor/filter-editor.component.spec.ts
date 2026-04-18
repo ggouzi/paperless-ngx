@@ -1687,7 +1687,7 @@ describe('FilterEditorComponent', () => {
     expect(component.filterRules).toEqual([
       {
         rule_type: FILTER_FULLTEXT_QUERY,
-        value: 'foo,created:[-1 week to now]',
+        value: 'foo created:[-1 week to now]',
       },
     ])
   }))
@@ -1709,7 +1709,7 @@ describe('FilterEditorComponent', () => {
     expect(component.filterRules).toEqual([
       {
         rule_type: FILTER_FULLTEXT_QUERY,
-        value: 'foo,created:[-1 week to now]',
+        value: 'foo created:[-1 week to now]',
       },
     ])
   }))
@@ -1731,7 +1731,7 @@ describe('FilterEditorComponent', () => {
     expect(component.filterRules).toEqual([
       {
         rule_type: FILTER_FULLTEXT_QUERY,
-        value: 'foo,created:[-1 week to now]',
+        value: 'foo created:[-1 week to now]',
       },
     ])
   }))
@@ -1832,7 +1832,7 @@ describe('FilterEditorComponent', () => {
     expect(component.filterRules).toEqual([
       {
         rule_type: FILTER_FULLTEXT_QUERY,
-        value: 'foo,added:[-1 week to now]',
+        value: 'foo added:[-1 week to now]',
       },
     ])
   }))
