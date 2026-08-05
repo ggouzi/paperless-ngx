@@ -159,7 +159,7 @@ ARG RUNTIME_PACKAGES="\
 # Install basic runtime packages.
 # These change very infrequently
 RUN set -eux \
-  echo "Installing system packages" \
+  && echo "Installing system packages" \
     && apt-get update \
     && apt-get install --yes --quiet --no-install-recommends ${RUNTIME_PACKAGES} \
     && echo "Installing pre-built updates" \
